@@ -3,13 +3,12 @@ package com.example.habittracker
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.ImageDecoder
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_create_habit.*
 import java.io.IOException
 
@@ -17,6 +16,7 @@ class CreateHabitActivity : AppCompatActivity() {
 
     private val TAG = CreateHabitActivity::class.simpleName
     private val CHOOSE_IMAGE_REQUEST = 1
+    private var imageBitmap : Bitmap? = null;
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,14 +37,19 @@ class CreateHabitActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        if (requestCode == CHOOSE_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.data != null) {
-            Log.d(TAG, "An image was chosen by the user.")
+//        if (requestCode == CHOOSE_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.data != null) {
+        if (requestCode == CHOOSE_IMAGE_REQUEST && resultCode == Activity.RESULT_OK) {
 
-            val bitmap = tryReadBitmap(data.data!!)
+            data?.data?.let {
+                Log.d(TAG, "An image was chosen by the user.")
 
-            bitmap?.let {
-                iv_image.setImageBitmap(bitmap)
-                Log.d(TAG, "Read image and updated image view.")
+                val bitmap = tryReadBitmap(data.data!!)
+
+                bitmap?.let {
+                    imageBitmap = bitmap
+                    iv_image.setImageBitmap(bitmap)
+                    Log.d(TAG, "Read image and updated image view.")
+                }
             }
         }
     }
@@ -52,11 +57,31 @@ class CreateHabitActivity : AppCompatActivity() {
     private fun tryReadBitmap(data: Uri): Bitmap? {
         return try {
             MediaStore.Images.Media.getBitmap(contentResolver, data)
-        }
-        catch (e: IOException) {
+        } catch (e: IOException) {
             e.printStackTrace()
             null
         }
+    }
+
+    fun storeHabit(view: View) {
+        if (et_title.text.toString().isBlank() || et_descr.text.toString().isBlank()) {
+            Log.d(TAG, "No habit stored: Title or description missing")
+            displayErrorMessage("Your habit needs an engaging title and description")
+            return
+        } else if (imageBitmap == null) {
+            Log.d(TAG, "No habit stored: Image missing")
+            displayErrorMessage("Your habit needs a motivating image")
+            return
+        }
+
+        tv_error.visibility = View.INVISIBLE
+
+        // store habit
+    }
+
+    private fun displayErrorMessage(message: String) {
+        tv_error.text = message
+        tv_error.visibility = View.VISIBLE
     }
 
 
