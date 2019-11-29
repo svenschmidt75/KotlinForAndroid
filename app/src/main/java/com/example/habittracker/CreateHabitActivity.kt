@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
+import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_create_habit.*
 import java.io.IOException
@@ -16,7 +17,7 @@ class CreateHabitActivity : AppCompatActivity() {
 
     private val TAG = CreateHabitActivity::class.simpleName
     private val CHOOSE_IMAGE_REQUEST = 1
-    private var imageBitmap : Bitmap? = null;
+    private var imageBitmap: Bitmap? = null;
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,7 +65,7 @@ class CreateHabitActivity : AppCompatActivity() {
     }
 
     fun storeHabit(view: View) {
-        if (et_title.text.toString().isBlank() || et_descr.text.toString().isBlank()) {
+        if (et_title.isBlank() || et_descr.isBlank()) {
             Log.d(TAG, "No habit stored: Title or description missing")
             displayErrorMessage("Your habit needs an engaging title and description")
             return
@@ -78,6 +79,8 @@ class CreateHabitActivity : AppCompatActivity() {
 
         // store habit
     }
+
+    private fun EditText.isBlank(): Boolean = this.text.toString().isBlank()
 
     private fun displayErrorMessage(message: String) {
         tv_error.text = message
